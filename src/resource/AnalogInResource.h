@@ -20,7 +20,7 @@ class AnalogInResource : public Resource {
   void handlePayload(std::uint8_t *buffer) override {
     std::memset(buffer, 0, PAYLOAD_LENGTH * (sizeof buffer[0]));
 
-    const int value = analogRead(pin);
+    std::int16_t value = analogRead(pin);
 
     buffer[0] = value & 0xF;
     buffer[1] = value & 0xF0;
