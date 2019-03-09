@@ -13,7 +13,7 @@ class Resource {
    * @param attachment The attachment point type.
    * @param attachmentData Any attachment data.
    */
-  Resource(std::int8_t resource, std::int8_t attachment, const std::int8_t *attachmentData) {
+  Resource(std::uint8_t resource, std::uint8_t attachment, const std::uint8_t *attachmentData) {
   }
 
   /**
@@ -27,5 +27,5 @@ class Resource {
    *
    * @param buffer The buffer.
    */
-  virtual void handlePayload(std::int8_t *buffer) = 0;
+  virtual void handlePayload(std::uint8_t *buffer) = 0;
 };

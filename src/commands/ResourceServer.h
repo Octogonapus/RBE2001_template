@@ -6,7 +6,7 @@
 
 class ResourceServer : public PacketEventAbstract {
   public:
-  ResourceServer(std::int8_t ipacketId, std::unique_ptr<Resource> iresource)
+  ResourceServer(std::uint8_t ipacketId, std::unique_ptr<Resource> iresource)
     : PacketEventAbstract(ipacketId), resource(std::move(iresource)) {
   }
 
@@ -14,7 +14,7 @@ class ResourceServer : public PacketEventAbstract {
   }
 
   void event(float *buffer) {
-    resource->handlePayload((std::int8_t *)buffer);
+    resource->handlePayload((std::uint8_t *)buffer);
   }
 
   protected:

@@ -30,7 +30,7 @@ class DiscoveryPacket : public PacketEventAbstract {
    *
    * @param buffer The packet payload.
    */
-  void parseGeneralDiscoveryPacket(std::int8_t *buffer);
+  void parseGeneralDiscoveryPacket(std::uint8_t *buffer);
 
   /**
    * Parses a discovery packet and writes the response.
@@ -40,7 +40,7 @@ class DiscoveryPacket : public PacketEventAbstract {
    * @param buffer The packet payload.
    * @param dest The reply buffer.
    */
-  void parseDiscoveryPacket(const std::int8_t *buffer, std::int8_t *dest);
+  void parseDiscoveryPacket(const std::uint8_t *buffer, std::uint8_t *dest);
 
   /**
    * Parses a group discovery packet and writes the response.
@@ -50,7 +50,7 @@ class DiscoveryPacket : public PacketEventAbstract {
    * @param buffer The packet payload.
    * @param dest The reply buffer.
    */
-  void parseGroupDiscoveryPacket(const std::int8_t *buffer, std::int8_t *dest);
+  void parseGroupDiscoveryPacket(const std::uint8_t *buffer, std::uint8_t *dest);
 
   /**
    * Parses a group member discovery packet and writes the response.
@@ -60,7 +60,7 @@ class DiscoveryPacket : public PacketEventAbstract {
    * @param buffer The packet payload.
    * @param dest The reply buffer.
    */
-  void parseGroupMemberDiscoveryPacket(const std::int8_t *buffer, std::int8_t *dest);
+  void parseGroupMemberDiscoveryPacket(const std::uint8_t *buffer, std::uint8_t *dest);
 
   /**
    * Parses a discard discovery packet and writes the response.
@@ -70,7 +70,7 @@ class DiscoveryPacket : public PacketEventAbstract {
    * @param buffer The packet payload.
    * @param dest The reply buffer.
    */
-  void parseDiscardDiscoveryPacket(const std::int8_t *buffer, std::int8_t *dest);
+  void parseDiscardDiscoveryPacket(const std::uint8_t *buffer, std::uint8_t *dest);
 
   /**
    * Attaches a resource.
@@ -81,12 +81,11 @@ class DiscoveryPacket : public PacketEventAbstract {
    * @param attachmentData Any attachment data.
    * @param dest The destination array to write the status and payload to.
    */
-  virtual void attachResource(std::int8_t packetId,
-                              std::int8_t resource,
-                              std::int8_t attachment,
-                              const std::int8_t *attachmentData,
-                              std::int8_t *dest);
+  virtual void attachResource(std::uint8_t packetId,
+                              std::uint8_t resource,
+                              std::uint8_t attachment,
+                              const std::uint8_t *attachmentData,
+                              std::uint8_t *dest);
 
   UDPSimplePacket *coms;
-  std::vector<ResourceServer *> resourceServers{};
 };

@@ -10,7 +10,7 @@
 // Buffer contains data from the packet coming in at the start of the function
 // User data is written into the buffer to send it back
 void DiscoveryPacket::event(float *buffer) {
-  std::int8_t *buf = (std::int8_t *)buffer;
+  std::uint8_t *buf = (std::uint8_t *)buffer;
 
   Serial.println("Got DiscoveryPacket event:");
   // Print the bytes we got
@@ -23,9 +23,9 @@ void DiscoveryPacket::event(float *buffer) {
   parseGeneralDiscoveryPacket(buf);
 }
 
-void DiscoveryPacket::parseGeneralDiscoveryPacket(std::int8_t *buffer) {
-  const std::int8_t operation = buffer[0];
-  std::int8_t *dest = (std::int8_t *)std::calloc(PAYLOAD_LENGTH, sizeof(std::int8_t));
+void DiscoveryPacket::parseGeneralDiscoveryPacket(std::uint8_t *buffer) {
+  const std::uint8_t operation = buffer[0];
+  std::uint8_t *dest = (std::uint8_t *)std::calloc(PAYLOAD_LENGTH, sizeof(std::uint8_t));
 
   switch (operation) {
   case OPERATION_DISCOVERY_ID:
@@ -50,43 +50,38 @@ void DiscoveryPacket::parseGeneralDiscoveryPacket(std::int8_t *buffer) {
   }
 
   std::memcpy(buffer, dest, PAYLOAD_LENGTH * sizeof(buffer[0]));
-  Serial.println("end of general discovery");
 }
 
-void DiscoveryPacket::parseDiscoveryPacket(const std::int8_t *buffer, std::int8_t *dest) {
-  std::int8_t packetId = buffer[1];
-  std::int8_t resource = buffer[2];
-  std::int8_t attachment = buffer[3];
-  const std::int8_t *attachmentData = buffer + 4;
+void DiscoveryPacket::parseDiscoveryPacket(const std::uint8_t *buffer, std::uint8_t *dest) {
+  std::uint8_t packetId = buffer[1];
+  std::uint8_t resource = buffer[2];
+  std::uint8_t attachment = buffer[3];
+  const std::uint8_t *attachmentData = buffer + 4;
   attachResource(packetId, resource, attachment, attachmentData, dest);
 }
 
-void DiscoveryPacket::parseGroupDiscoveryPacket(const std::int8_t *buffer, std::int8_t *dest) {
+void DiscoveryPacket::parseGroupDiscoveryPacket(const std::uint8_t *buffer, std::uint8_t *dest) {
 }
 
-void DiscoveryPacket::parseGroupMemberDiscoveryPacket(const std::int8_t *buffer,
-                                                      std::int8_t *dest) {
+void DiscoveryPacket::parseGroupMemberDiscoveryPacket(const std::uint8_t *buffer,
+                                                      std::uint8_t *dest) {
 }
 
-void DiscoveryPacket::parseDiscardDiscoveryPacket(const std::int8_t *buffer, std::int8_t *dest) {
+void DiscoveryPacket::parseDiscardDiscoveryPacket(const std::uint8_t *buffer, std::uint8_t *dest) {
 }
 
-void DiscoveryPacket::attachResource(std::int8_t packetId,
-                                     std::int8_t resource,
-                                     std::int8_t attachment,
-                                     const std::int8_t *attachmentData,
-                                     std::int8_t *dest) {
+void DiscoveryPacket::attachResource(std::uint8_t packetId,
+                                     std::uint8_t resource,
+                                     std::uint8_t attachment,
+                                     const std::uint8_t *attachmentData,
+                                     std::uint8_t *dest) {
   switch (resource) {
   case RESOURCE_TYPE_ANALOG_IN: {
     switch (attachment) {
     case ATTACHMENT_POINT_TYPE_PIN: {
-      ResourceServer *resourceServer =
-        new ResourceServer(packetId,
-                           std::unique_ptr<AnalogInResource>(
-                             new AnalogInResource(resource, attachment, attachmentData)));
-
-      coms->attach(resourceServer);
-      resourceServers.push_back(resourceServer);
+      coms->attach(new ResourceServer(packetId,
+                                      std::unique_ptr<AnalogInResource>(new AnalogInResource(
+                                        resource, attachment, attachmentData))));
 
       dest[0] = STATUS_ACCEPTED;
       return;
@@ -102,17 +97,9 @@ void DiscoveryPacket::attachResource(std::int8_t packetId,
   case RESOURCE_TYPE_DIGITAL_OUT: {
     switch (attachment) {
     case ATTACHMENT_POINT_TYPE_PIN: {
-      Serial.println("1");
-      ResourceServer *resourceServer =
-        new ResourceServer(packetId,
-                           std::unique_ptr<DigitalOutResource>(
-                             new DigitalOutResource(resource, attachment, attachmentData)));
-      Serial.println("2");
-
-      coms->attach(resourceServer);
-      Serial.println("3");
-      resourceServers.push_back(resourceServer);
-      Serial.println("4");
+      coms->attach(new ResourceServer(packetId,
+                                      std::unique_ptr<DigitalOutResource>(new DigitalOutResource(
+                                        resource, attachment, attachmentData))));
 
       dest[0] = STATUS_ACCEPTED;
       return;
