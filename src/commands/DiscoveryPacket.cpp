@@ -1,6 +1,7 @@
 #include "DiscoveryPacket.h"
 #include "../resource/AnalogInResource.h"
 #include "../resource/DigitalOutResource.h"
+#include "ResourceServer.h"
 #include <Arduino.h>
 #include <algorithm>
 #include <cstdlib>
@@ -54,68 +55,91 @@ void DiscoveryPacket::parseGeneralDiscoveryPacket(std::uint8_t *buffer) {
 
 void DiscoveryPacket::parseDiscoveryPacket(const std::uint8_t *buffer, std::uint8_t *dest) {
   std::uint8_t packetId = buffer[1];
-  std::uint8_t resource = buffer[2];
+  std::uint8_t resourceType = buffer[2];
   std::uint8_t attachment = buffer[3];
   const std::uint8_t *attachmentData = buffer + 4;
-  attachResource(packetId, resource, attachment, attachmentData, dest);
+
+  attachResource(packetId, resourceType, attachment, attachmentData, dest);
 }
 
 void DiscoveryPacket::parseGroupDiscoveryPacket(const std::uint8_t *buffer, std::uint8_t *dest) {
+  std::uint8_t groupId = buffer[1];
+  std::uint8_t packetId = buffer[2];
+  std::uint8_t count = buffer[3];
+
+  groupServers.emplace(groupId, new GroupResourceServer(packetId));
+  coms->attach(groupServers.at(groupId));
+
+  dest[0] = STATUS_ACCEPTED;
 }
 
 void DiscoveryPacket::parseGroupMemberDiscoveryPacket(const std::uint8_t *buffer,
                                                       std::uint8_t *dest) {
+  std::uint8_t groupId = buffer[1];
+  std::uint8_t resourceType = buffer[6];
+  std::uint8_t attachment = buffer[7];
+  const std::uint8_t *attachmentData = buffer + 8;
+
+  std::unique_ptr<Resource> resource;
+  std::uint8_t status;
+  std::tie(resource, status) = makeResource(resourceType, attachment, attachmentData);
+
+  if (resource) {
+    groupServers.at(groupId)->addResource(std::move(resource));
+  }
+
+  dest[0] = status;
 }
 
 void DiscoveryPacket::parseDiscardDiscoveryPacket(const std::uint8_t *buffer, std::uint8_t *dest) {
 }
 
 void DiscoveryPacket::attachResource(std::uint8_t packetId,
-                                     std::uint8_t resource,
+                                     std::uint8_t resourceType,
                                      std::uint8_t attachment,
                                      const std::uint8_t *attachmentData,
                                      std::uint8_t *dest) {
-  switch (resource) {
+  std::unique_ptr<Resource> resource;
+  std::uint8_t status;
+  std::tie(resource, status) = makeResource(resourceType, attachment, attachmentData);
+
+  if (resource) {
+    coms->attach(new ResourceServer(packetId, std::move(resource)));
+  }
+
+  dest[0] = status;
+}
+
+std::tuple<std::unique_ptr<Resource>, std::uint8_t>
+DiscoveryPacket::makeResource(std::uint8_t resourceType,
+                              std::uint8_t attachment,
+                              const std::uint8_t *attachmentData) {
+  switch (resourceType) {
   case RESOURCE_TYPE_ANALOG_IN: {
     switch (attachment) {
     case ATTACHMENT_POINT_TYPE_PIN: {
-      coms->attach(new ResourceServer(packetId,
-                                      std::unique_ptr<AnalogInResource>(new AnalogInResource(
-                                        resource, attachment, attachmentData))));
-
-      dest[0] = STATUS_ACCEPTED;
-      return;
+      return std::make_tuple(std::unique_ptr<AnalogInResource>(
+                               new AnalogInResource(resourceType, attachment, attachmentData)),
+                             STATUS_ACCEPTED);
     }
 
-    default: {
-      dest[0] = STATUS_REJECTED_INVALID_ATTACHMENT;
-      return;
-    }
+    default: { return std::make_tuple(nullptr, STATUS_REJECTED_UNKNOWN_ATTACHMENT); }
     }
   }
 
   case RESOURCE_TYPE_DIGITAL_OUT: {
     switch (attachment) {
     case ATTACHMENT_POINT_TYPE_PIN: {
-      coms->attach(new ResourceServer(packetId,
-                                      std::unique_ptr<DigitalOutResource>(new DigitalOutResource(
-                                        resource, attachment, attachmentData))));
-
-      dest[0] = STATUS_ACCEPTED;
-      return;
+      return std::make_tuple(std::unique_ptr<DigitalOutResource>(
+                               new DigitalOutResource(resourceType, attachment, attachmentData)),
+                             STATUS_ACCEPTED);
     }
 
-    default: {
-      dest[0] = STATUS_REJECTED_INVALID_ATTACHMENT;
-      return;
-    }
+    default: { return std::make_tuple(nullptr, STATUS_REJECTED_UNKNOWN_ATTACHMENT); }
     }
   }
 
-  default: {
-    dest[0] = STATUS_REJECTED_UNKNOWN_RESOURCE;
-    return;
-  }
+  default: { return std::make_tuple(nullptr, STATUS_REJECTED_UNKNOWN_RESOURCE); }
   }
 }
 

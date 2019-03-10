@@ -17,9 +17,19 @@ class DigitalOutResource : public Resource {
   virtual ~DigitalOutResource() {
   }
 
-  void handlePayload(std::uint8_t *buffer) override {
+  void readFromPayload(std::uint8_t *buffer) override {
     digitalWrite(pin, buffer[0]);
-    std::memset(buffer, 0, PAYLOAD_LENGTH * (sizeof buffer[0]));
+  }
+
+  void writeToPayload(std::uint8_t *buffer) override {
+  }
+
+  std::uint8_t getReceivePayloadLength() const override {
+    return 1;
+  }
+
+  std::uint8_t getSendPayloadLength() const override {
+    return 0;
   }
 
   protected:

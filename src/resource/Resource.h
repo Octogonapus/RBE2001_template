@@ -23,9 +23,30 @@ class Resource {
   }
 
   /**
-   * Reads the payload and writes back to the buffer to send a response.
+   * Reads from the buffer to receive a command.
    *
    * @param buffer The buffer.
    */
-  virtual void handlePayload(std::uint8_t *buffer) = 0;
+  virtual void readFromPayload(std::uint8_t *buffer) = 0;
+
+  /**
+   * Writes into the buffer to send a response.
+   *
+   * @param buffer The buffer.
+   */
+  virtual void writeToPayload(std::uint8_t *buffer) = 0;
+
+  /**
+   * Gets the length of the receive payload.
+   *
+   * @return The length of the receive payload.
+   */
+  virtual std::uint8_t getReceivePayloadLength() const = 0;
+
+  /**
+   * Gets the length of the send payload.
+   *
+   * @return The length of the send payload.
+   */
+  virtual std::uint8_t getSendPayloadLength() const = 0;
 };

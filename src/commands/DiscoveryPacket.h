@@ -2,11 +2,13 @@
 
 #include "../resource/Resource.h"
 #include "DiscoveryMetadata.h"
-#include "ResourceServer.h"
+#include "GroupResourceServer.h"
 #include <Esp32SimplePacketComs.h>
 #include <SimplePacketComs.h>
 #include <array>
+#include <map>
 #include <memory>
+#include <tuple>
 #include <vector>
 
 class DiscoveryPacket : public PacketEventAbstract {
@@ -76,16 +78,30 @@ class DiscoveryPacket : public PacketEventAbstract {
    * Attaches a resource.
    *
    * @param packetId The new packet ID.
-   * @param resource The resource type.
+   * @param resourceType The resource type.
    * @param attachment The attachment point type.
    * @param attachmentData Any attachment data.
    * @param dest The destination array to write the status and payload to.
    */
   virtual void attachResource(std::uint8_t packetId,
-                              std::uint8_t resource,
+                              std::uint8_t resourceType,
                               std::uint8_t attachment,
                               const std::uint8_t *attachmentData,
                               std::uint8_t *dest);
 
+  /**
+   * Makes a resource.
+   *
+   * @param resourceType The resource type.
+   * @param attachment The attachment point type.
+   * @param attachmentData Any attachment data.
+   * @return The resource and a status code.
+   */
+  virtual std::tuple<std::unique_ptr<Resource>, std::uint8_t>
+  makeResource(std::uint8_t resourceType,
+               std::uint8_t attachment,
+               const std::uint8_t *attachmentData);
+
   UDPSimplePacket *coms;
+  std::map<std::uint8_t, GroupResourceServer *> groupServers{};
 };

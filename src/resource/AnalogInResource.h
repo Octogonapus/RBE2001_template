@@ -17,13 +17,21 @@ class AnalogInResource : public Resource {
   virtual ~AnalogInResource() {
   }
 
-  void handlePayload(std::uint8_t *buffer) override {
-    std::memset(buffer, 0, PAYLOAD_LENGTH * (sizeof buffer[0]));
+  void readFromPayload(std::uint8_t *buffer) override {
+  }
 
+  void writeToPayload(std::uint8_t *buffer) override {
     std::int16_t value = analogRead(pin);
-
     buffer[0] = value & 0xF;
     buffer[1] = value & 0xF0;
+  }
+
+  std::uint8_t getReceivePayloadLength() const override {
+    return 0;
+  }
+
+  std::uint8_t getSendPayloadLength() const override {
+    return 2;
   }
 
   protected:

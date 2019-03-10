@@ -3,6 +3,7 @@
 #include "../resource/Resource.h"
 #include <Esp32SimplePacketComs.h>
 #include <SimplePacketComs.h>
+#include <cstring>
 
 class ResourceServer : public PacketEventAbstract {
   public:
@@ -13,8 +14,11 @@ class ResourceServer : public PacketEventAbstract {
   virtual ~ResourceServer() {
   }
 
-  void event(float *buffer) {
-    resource->handlePayload((std::uint8_t *)buffer);
+  void event(float *buffer) override {
+    std::uint8_t *buf = (std::uint8_t *)buffer;
+    resource->readFromPayload(buf);
+    std::memset(buf, 0, PAYLOAD_LENGTH * (sizeof buf[0]));
+    resource->writeToPayload(buf);
   }
 
   protected:
