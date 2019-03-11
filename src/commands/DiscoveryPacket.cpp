@@ -1,7 +1,6 @@
 #include "DiscoveryPacket.h"
 #include "../resource/AnalogInResource.h"
 #include "../resource/DigitalOutResource.h"
-#include "ResourceServer.h"
 #include <Arduino.h>
 #include <algorithm>
 #include <cstdlib>
@@ -104,7 +103,8 @@ void DiscoveryPacket::attachResource(std::uint8_t packetId,
   std::tie(resource, status) = makeResource(resourceType, attachment, attachmentData);
 
   if (resource) {
-    coms->attach(new ResourceServer(packetId, std::move(resource)));
+    resourceServers.emplace(packetId, new ResourceServer(packetId, std::move(resource)));
+    coms->attach(resourceServers.at(packetId));
   }
 
   dest[0] = status;
