@@ -3,7 +3,7 @@
 #include "../resource/Resource.h"
 #include "DiscoveryMetadata.h"
 #include "GroupResourceServer.h"
-#include <Esp32SimplePacketComs.h>
+#include "ResourceServer.h"
 #include <SimplePacketComs.h>
 #include <array>
 #include <map>
@@ -13,7 +13,7 @@
 
 class DiscoveryPacket : public PacketEventAbstract {
   public:
-  DiscoveryPacket(UDPSimplePacket *icoms) : PacketEventAbstract(DISCOVERY_PACKET_ID), coms(icoms) {
+  DiscoveryPacket(SimplePacketComsAbstract *icoms) : PacketEventAbstract(DISCOVERY_PACKET_ID), coms(icoms) {
   }
 
   virtual ~DiscoveryPacket() {
@@ -102,6 +102,7 @@ class DiscoveryPacket : public PacketEventAbstract {
                std::uint8_t attachment,
                const std::uint8_t *attachmentData);
 
-  UDPSimplePacket *coms;
+  SimplePacketComsAbstract *coms;
+  std::map<std::uint8_t, ResourceServer *> resourceServers{};
   std::map<std::uint8_t, GroupResourceServer *> groupServers{};
 };
