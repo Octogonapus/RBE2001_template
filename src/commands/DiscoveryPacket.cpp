@@ -76,6 +76,10 @@ void DiscoveryPacket::parseGroupDiscoveryPacket(const std::uint8_t *buffer, std:
 void DiscoveryPacket::parseGroupMemberDiscoveryPacket(const std::uint8_t *buffer,
                                                       std::uint8_t *dest) {
   std::uint8_t groupId = buffer[1];
+  std::uint8_t sendStart = buffer[2];
+  std::uint8_t sendEnd = buffer[3];
+  std::uint8_t receiveStart = buffer[4];
+  std::uint8_t receiveEnd = buffer[5];
   std::uint8_t resourceType = buffer[6];
   std::uint8_t attachment = buffer[7];
   const std::uint8_t *attachmentData = buffer + 8;
@@ -85,6 +89,8 @@ void DiscoveryPacket::parseGroupMemberDiscoveryPacket(const std::uint8_t *buffer
   std::tie(resource, status) = makeResource(resourceType, attachment, attachmentData);
 
   if (resource) {
+    resource->setReceivePayloadLength(receiveEnd - receiveStart);
+    resource->setSendPayloadLength(sendEnd - sendStart);
     groupServers.at(groupId)->addResource(std::move(resource));
   }
 

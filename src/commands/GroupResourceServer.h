@@ -27,7 +27,7 @@ class GroupResourceServer : public PacketEventAbstract {
 
     for (auto &resource : resources) {
       resource->writeToPayload(buf);
-      buf = buf + resource->getReceivePayloadLength();
+      buf = buf + resource->getSendPayloadLength();
     }
   }
 

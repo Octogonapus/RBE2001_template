@@ -24,14 +24,6 @@ class DigitalOutResource : public Resource {
   void writeToPayload(std::uint8_t *buffer) override {
   }
 
-  std::uint8_t getReceivePayloadLength() const override {
-    return 1;
-  }
-
-  std::uint8_t getSendPayloadLength() const override {
-    return 0;
-  }
-
   protected:
   std::uint8_t pin;
 };

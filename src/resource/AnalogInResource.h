@@ -26,14 +26,6 @@ class AnalogInResource : public Resource {
     buffer[1] = value & 0xF0;
   }
 
-  std::uint8_t getReceivePayloadLength() const override {
-    return 0;
-  }
-
-  std::uint8_t getSendPayloadLength() const override {
-    return 2;
-  }
-
   protected:
   std::uint8_t pin;
 };

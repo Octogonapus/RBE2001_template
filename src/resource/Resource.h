@@ -37,16 +37,42 @@ class Resource {
   virtual void writeToPayload(std::uint8_t *buffer) = 0;
 
   /**
+   * Sets the length of the receive payload.
+   *
+   * @param length The length of the receive payload.
+   */
+  std::uint8_t setReceivePayloadLength(std::uint8_t length) {
+    receiveLength = length;
+  }
+
+  /**
+   * Sets the length of the send payload.
+   *
+   * @param length The length of the send payload.
+   */
+  std::uint8_t setSendPayloadLength(std::uint8_t length) {
+    sendLength = length;
+  }
+
+  /**
    * Gets the length of the receive payload.
    *
    * @return The length of the receive payload.
    */
-  virtual std::uint8_t getReceivePayloadLength() const = 0;
+  std::uint8_t getReceivePayloadLength() const {
+    return receiveLength;
+  }
 
   /**
    * Gets the length of the send payload.
    *
    * @return The length of the send payload.
    */
-  virtual std::uint8_t getSendPayloadLength() const = 0;
+  std::uint8_t getSendPayloadLength() const {
+    return sendLength;
+  }
+
+  protected:
+  std::uint8_t sendLength = 60;
+  std::uint8_t receiveLength = 60;
 };
