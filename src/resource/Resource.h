@@ -73,6 +73,6 @@ class Resource {
   }
 
   protected:
-  std::uint8_t sendLength = 60;
-  std::uint8_t receiveLength = 60;
+  std::uint8_t sendLength{60};
+  std::uint8_t receiveLength{60};
 };

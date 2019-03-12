@@ -88,8 +88,12 @@ void DiscoveryPacket::parseGroupMemberDiscoveryPacket(const std::uint8_t *buffer
   std::tie(resource, status) = makeResource(resourceType, attachment, attachmentData);
 
   if (resource) {
-    resource->setReceivePayloadLength(receiveEnd - receiveStart);
-    resource->setSendPayloadLength(sendEnd - sendStart);
+    // Send length is from the PC perspective, which is our receive length
+    resource->setReceivePayloadLength(sendEnd - sendStart);
+
+    // Receive length is from the PC perspective, which is our send length
+    resource->setSendPayloadLength(receiveEnd - receiveStart);
+
     groupServers.at(groupId)->addResource(std::move(resource));
   }
 
