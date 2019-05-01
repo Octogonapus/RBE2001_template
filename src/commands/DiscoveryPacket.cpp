@@ -1,6 +1,7 @@
 #include "DiscoveryPacket.h"
 #include "../resource/AnalogInResource.h"
 #include "../resource/DigitalOutResource.h"
+#include "../resource/ServoResource.h"
 #include <Arduino.h>
 #include <algorithm>
 #include <cstdlib>
@@ -41,7 +42,7 @@ void DiscoveryPacket::parseGeneralDiscoveryPacket(std::uint8_t *buffer) {
     break;
 
   case OPERATION_DISCARD_DISCOVERY_ID:
-    parseGroupMemberDiscoveryPacket(buffer, dest);
+    parseDiscardDiscoveryPacket(buffer, dest);
     break;
 
   default:
@@ -101,6 +102,7 @@ void DiscoveryPacket::parseGroupMemberDiscoveryPacket(const std::uint8_t *buffer
 }
 
 void DiscoveryPacket::parseDiscardDiscoveryPacket(const std::uint8_t *buffer, std::uint8_t *dest) {
+  // TODO: Free the servers
 }
 
 void DiscoveryPacket::attachResource(std::uint8_t packetId,
@@ -143,6 +145,18 @@ DiscoveryPacket::makeResource(std::uint8_t resourceType,
       return std::make_tuple(std::unique_ptr<DigitalOutResource>(
                                new DigitalOutResource(resourceType, attachment, attachmentData)),
                              STATUS_ACCEPTED);
+    }
+
+    default: { return std::make_tuple(nullptr, STATUS_REJECTED_UNKNOWN_ATTACHMENT); }
+    }
+  }
+
+  case RESOURCE_TYPE_SERVO: {
+    switch (attachment) {
+    case ATTACHMENT_POINT_TYPE_PIN: {
+      return std::make_tuple(
+        std::unique_ptr<ServoResource>(new ServoResource(resourceType, attachment, attachmentData)),
+        STATUS_ACCEPTED);
     }
 
     default: { return std::make_tuple(nullptr, STATUS_REJECTED_UNKNOWN_ATTACHMENT); }
