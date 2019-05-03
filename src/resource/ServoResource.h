@@ -18,15 +18,10 @@ class ServoResource : public Resource {
   }
 
   void readFromPayload(std::uint8_t *buffer) override {
-    Serial.print("Received servo angle: ");
-    Serial.println(buffer[0]);
     servo.write(buffer[0]);
   }
 
   void writeToPayload(std::uint8_t *buffer) override {
-    Serial.print("Sent servo angle: ");
-    Serial.println(buffer[0]);
-    buffer[0] = servo.read();
   }
 
   protected:

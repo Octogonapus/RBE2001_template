@@ -102,7 +102,19 @@ void DiscoveryPacket::parseGroupMemberDiscoveryPacket(const std::uint8_t *buffer
 }
 
 void DiscoveryPacket::parseDiscardDiscoveryPacket(const std::uint8_t *buffer, std::uint8_t *dest) {
-  // TODO: Free the servers
+  for (auto const &elem : resourceServers) {
+    coms->detach(elem.first);
+    delete elem.second;
+  }
+  resourceServers.clear();
+
+  for (auto const &elem : groupServers) {
+    coms->detach(elem.first);
+    delete elem.second;
+  }
+  groupServers.clear();
+
+  dest[0] = STATUS_DISCARD_COMPLETE;
 }
 
 void DiscoveryPacket::attachResource(std::uint8_t packetId,
