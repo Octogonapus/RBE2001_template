@@ -13,7 +13,8 @@
 
 class DiscoveryPacket : public PacketEventAbstract {
   public:
-  DiscoveryPacket(SimplePacketComsAbstract *icoms) : PacketEventAbstract(DISCOVERY_PACKET_ID), coms(icoms) {
+  DiscoveryPacket(SimplePacketComsAbstract *icoms)
+    : PacketEventAbstract(DISCOVERY_PACKET_ID), coms(icoms) {
   }
 
   virtual ~DiscoveryPacket() {
@@ -22,7 +23,7 @@ class DiscoveryPacket : public PacketEventAbstract {
   // User function to be called when a packet comes in
   // Buffer contains data from the packet coming in at the start of the function
   // User data is written into the buffer to send it back
-  void event(float *buffer);
+  void event(float *buffer) override;
 
   protected:
   /**
