@@ -12,26 +12,23 @@
 #include <Arduino.h>
 #endif
 #include "../config.h"
-#include <ESP32Servo.h>
-#include <ESP32Encoder.h>
-#include "../RBEPID.h"
-#include "pid/PIDMotor.h"
-#include "pid/ServoEncoderPIDMotor.h"
-#include "pid/HBridgeEncoderPIDMotor.h"
-#include "pid/ServoAnalogPIDMotor.h"
-#include <Preferences.h>
-#include <WiFi.h>
-#include <SimplePacketComs.h>
-#include <Esp32SimplePacketComs.h>
-#include <wifi/WifiManager.h>
-#include <server/NameCheckerServer.h>
 #include "commands/DiscoveryPacket.h"
-#include "../StudentsRobot.h"
+#include <ESP32Encoder.h>
+#include <ESP32Servo.h>
+#include <Esp32SimplePacketComs.h>
+#include <Preferences.h>
+#include <SimplePacketComs.h>
+#include <WiFi.h>
+#include <server/NameCheckerServer.h>
+#include <wifi/WifiManager.h>
+
 enum state_t {
-	Startup, WaitForConnect, run
-// Add more states here and be sure to add them to the cycle
+  Startup,
+  WaitForConnect,
+  run
+  // Add more states here and be sure to add them to the cycle
 };
-#define numberOfPID  3
+
 /**
  * RobotControlCenter is the main class for the 2000 level student code
  *
@@ -45,76 +42,61 @@ enum state_t {
  *
  */
 class RobotControlCenter {
-private:
+  private:
+  int64_t lastPrint = 0;
 
-	// A value to check if enough time has elapsed to tun the sensors and prints
-	int64_t lastPrint = 0;
-	// Change this to set your team name
-	String * name;	//
-	// List of PID objects to use with PID server
-	PIDMotor * pidList[numberOfPID];	// = { &motor1.myPID, &motor2.myPID };
+  // Change this to set your team name
+  String *name;
 
 #if defined(USE_WIFI)
-	// SImple packet coms implementation useing WiFi
-	UDPSimplePacket coms;
-	// WIfi stack managment state machine
-	WifiManager manager;
-
+  // SImple packet coms implementation useing WiFi
+  UDPSimplePacket coms;
+  // WIfi stack managment state machine
+  WifiManager manager;
 #endif
 
-	//attach the PID servers
-	void setupPIDServers();
-	// State machine state
-	state_t state = Startup;
-public:
-	/**
-	 * RobotControlCenter constructor
-	 *
-	 * The name is used by the SimplePacketComs stack to locate your specific
-	 * robot on the network.
-	 */
-	RobotControlCenter(String * name);
-	~RobotControlCenter() {
-	}
-	/**
-	 * Pulse the loop function from the main thread
-	 *
-	 * This function is callled over and over by the INO loop()
-	 */
-	void loop();
-	/**
-	 * A pointer to the students robot
-	 *
-	 * NULL at startup, this is instantiated by the RobotControlCenter state machine.
-	 * This variable is set as part of @see RobotControlCenter::setup
-	 */
-	StudentsRobot * robot;
-protected:
-	ServoEncoderPIDMotor motor1;  // PID controlled motor object
-	ServoEncoderPIDMotor motor2; // PID controlled motor object
-	HBridgeEncoderPIDMotor motor3; // PID controlled motor object
-	// Servo objects
-	Servo servo;
+  // attach the PID servers
+  void setupPIDServers();
+  // State machine state
+  state_t state = Startup;
 
-	//
-	/**
-	 * Internal setup function to set up all objects
-	 *
-	 * This function is called as part of the state machine by the object
-	 */
-	void setup();
-	/**
-	 * 	The fast loop actions
-	 *
-	 * 	This should be run every loop and is internally gated for fast opperation
-	 *
-	 * 	@see StudentsRobot::Approve
-	 * 	@see StudentsRobot::ClearFaults
-	 * 	@see StudentsRobot::EStop
-	 * 	@see StudentsRobot::PickOrder
-	 */
-	void fastLoop();
+  public:
+  /**
+   * RobotControlCenter constructor
+   *
+   * The name is used by the SimplePacketComs stack to locate your specific
+   * robot on the network.
+   */
+  RobotControlCenter(String *name);
+  ~RobotControlCenter() {
+  }
 
+  /**
+   * Pulse the loop function from the main thread
+   *
+   * This function is called over and over by the INO loop()
+   */
+  void loop();
+
+  protected:
+  /**
+   * Internal setup function to set up all objects
+   *
+   * This function is called as part of the state machine by the object
+   */
+  void setup();
+
+  /**
+   * 	The fast loop actions
+   *
+   * 	This should be run every loop and is internally gated for fast opperation
+   *
+   * 	@see StudentsRobot::Approve
+   * 	@see StudentsRobot::ClearFaults
+   * 	@see StudentsRobot::EStop
+   * 	@see StudentsRobot::PickOrder
+   */
+  void fastLoop();
 };
 
 #endif /* SRC_ROBOTCONTROLCENTER_H_ */
